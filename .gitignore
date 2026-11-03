@@ -1,0 +1,22 @@
+
+# Dependencies
+node_modules/
+client/node_modules/
+server/node_modules/
+
+# Secrets
+.env
+server/.env
+client/.env
+
+# Personal data
+*.xlsx
+*.xls
+*.csv
+
+# Build output
+client/dist/
+server/dist/
+
+# Logs
+*.log
