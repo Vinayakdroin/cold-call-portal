@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const userSchema = new mongoose.Schema({
   name:{type:String,required:true,trim:true}, email:{type:String,required:true,unique:true,lowercase:true,trim:true},
   passwordHash:{type:String,required:true}, role:{type:String,enum:['admin','caller'],default:'caller'},
-  group:{type:String,default:'General',trim:true}, active:{type:Boolean,default:true}
+  group:{type:String,default:'General',trim:true}, active:{type:Boolean,default:true}, dailyTarget:{type:Number,default:40,min:0}
 },{timestamps:true});
 const callSchema = new mongoose.Schema({
   caller:{type:mongoose.Schema.Types.ObjectId,ref:'User'}, attempt:{type:Number,required:true},
@@ -17,8 +17,10 @@ const leadSchema = new mongoose.Schema({
   campaign:{type:String,default:'Vision Mysore 2050'}, assignedTo:{type:mongoose.Schema.Types.ObjectId,ref:'User',default:null},
   attempts:{type:Number,default:0,min:0}, status:{type:String,enum:['pending','successful','unsuccessful','registered_website','applied_vision2050'],default:'pending'},
   lastCalledAt:{type:Date,default:null}, lastRemarks:{type:String,default:''}, followUpAt:{type:Date,default:null},
-  calls:[callSchema], importedAt:{type:Date,default:Date.now}
+  calls:[callSchema], importedAt:{type:Date,default:Date.now}, deletedAt:{type:Date,default:null,index:true}, deletedBy:{type:mongoose.Schema.Types.ObjectId,ref:'User',default:null}, deletionReason:{type:String,default:''}
 },{timestamps:true});
 leadSchema.index({phone:1,campaign:1},{unique:true});
-const User=mongoose.model('User',userSchema), Lead=mongoose.model('Lead',leadSchema);
-module.exports={User,Lead};
+const auditSchema=new mongoose.Schema({actor:{type:mongoose.Schema.Types.ObjectId,ref:'User'},actorName:String,action:String,entityType:String,entityIds:[mongoose.Schema.Types.ObjectId],details:mongoose.Schema.Types.Mixed},{timestamps:true});
+auditSchema.index({createdAt:-1});
+const User=mongoose.model('User',userSchema), Lead=mongoose.model('Lead',leadSchema), Audit=mongoose.model('Audit',auditSchema);
+module.exports={User,Lead,Audit};
